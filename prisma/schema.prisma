@@ -1,0 +1,50 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum data_type {
+  int
+  float
+  string
+  boolean
+}
+
+model habits {
+  id            Int             @id @default(autoincrement())
+  user          String
+  name          String
+  data_type     data_type
+  is_hidden     Boolean         @default(false)
+  created_at    DateTime        @default(now())
+  updated_at    DateTime        @updatedAt
+  habit_records habit_records[]
+
+  @@index([user])
+}
+
+model habit_records {
+  id            Int      @id @default(autoincrement())
+  habit_id      Int
+  habits        habits   @relation(fields: [habit_id], references: [id], onDelete: Cascade)
+  date          DateTime
+  value_int     Int?
+  value_float   Float?
+  value_string  String?
+  value_boolean Boolean?
+  created_at    DateTime @default(now())
+  updated_at    DateTime @updatedAt
+
+  @@index([habit_id])
+  @@index([date])
+}
